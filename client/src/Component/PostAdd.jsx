@@ -16,21 +16,23 @@ class PostAdd extends Component {
       title: (this.props.editData || {}).title || "",
       category: (this.props.editData || {}).category || "",
       price: (this.props.editData || {}).price || "",
-      tag: (this.props.editData || {}).tag || "",
+      // tag: (this.props.editData || {}).tag || "",
       mainimg: (this.props.editData || {}).mainimg || "",
       address: (this.props.editData || {}).address || "",
       location: (this.props.editData || {}).location || "",
       tags: (this.props.editData || {}).tags || "",
       phonenumber: (this.props.editData || {}).phonenumber || "",
       description: (this.props.editData || {}).description || "",
+      file: {},
     };
 
     this.state = {
       categoryList: [],
       locationList: [],
-      tagsList: ["1", "2"],
+      tags: [],
       saveModal: this.saveModal,
       validated: false,
+      file: {},
     };
   }
   getCategory = async () => {
@@ -96,41 +98,51 @@ class PostAdd extends Component {
 
     this.setState({ validated: true });
   };
-  handlePhoto = (e) => {
-    const { target } = e;
-    const fileInfo = (Object.values(target.files) || "")[0].File;
-  };
+  // handlePhoto = (e) => {
+  //   const { target } = e;
+  //   const fileInfo = (Object.values(target.files) || "")[0].File;
+  // };
 
-  getBase64(file, cb) {
-    let reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function () {
-      cb(reader.result);
-    };
-    reader.onerror = function (error) {
-      console.log("Error: ", error);
-    };
-  }
+  // getBase64(file, cb) {
+  //   let reader = new FileReader();
+  //   reader.readAsDataURL(file);
+  //   reader.onload = function () {
+  //     cb(reader.result);
+  //   };
+  //   reader.onerror = function (error) {
+  //     console.log("Error: ", error);
+  //   };
+  // }
 
   handlePhoto = async (e) => {
     e.preventDefault();
-    debugger;
+
     const fileInfo = e.target.files;
     const formData = new FormData();
+    // formData = {
+    //   file: formData.get("file"),
+    // };
+    console.log("this is ");
     let newArr = [];
     for (let i = 0; i < fileInfo.length; i++) {
       newArr.push(fileInfo[i]);
     }
-    formData.push("monfichier", newArr);
-
-    console.log(formData);
+    this.setState({
+      saveModal: {
+        ...this.state.saveModal,
+        file: e.target.files,
+      },
+    });
+    formData.append("file", this.state.file);
+    let data = { ...this.saveModal, file: this.state.file };
+    console.log(data);
 
     // axios
     //   .post('http://localhost:3000/uploaddufichier', formData)
     //   .then((res) => res.data);
   };
   render() {
-    const { categoryList, saveModal, locationList, tagsList, validated } =
+    const { categoryList, saveModal, locationList, tags, validated } =
       this.state;
     const { editData, handleCloseEditAdd, handleUpdatePost } = this.props;
 
@@ -186,7 +198,7 @@ class PostAdd extends Component {
                           <input
                             type="file"
                             className="form-control example-file-input-custom"
-                            name="example-file-input-custom"
+                            name="file"
                             onChange={this.handlePhoto}
                           />
                         </div>

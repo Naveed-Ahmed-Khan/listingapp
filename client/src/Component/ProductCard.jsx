@@ -11,7 +11,7 @@ export default function ProductCard({
   useEffect(() => {
     getReview();
   });
-
+  const [tags, setTagsList] = useState([]);
   const [productRating, setProductRating] = useState(0);
   const getReview = async () => {
     const addsReview = await callApi(`/review/ad/${items._id}`);
@@ -24,7 +24,19 @@ export default function ProductCard({
     setProductRating(parseInt(averageReview));
   };
 
-  const tagsList = ["#tag 1", "#tag 2", "#tag 3"];
+  let tagsList = [];
+
+  tags.forEach((item) => {
+    tagsList.push({ tag: item.name });
+  });
+  const getTags = async () => {
+    const { metalist } = await callApi("/tag", "get");
+    setTagsList(metalist);
+    console.log(metalist);
+  };
+  useEffect(() => {
+    getTags();
+  }, []);
 
   const showStar = () => {
     if (productRating === 0) {
@@ -169,7 +181,7 @@ export default function ProductCard({
                       cursor: "pointer",
                     }}
                   >
-                    {item}
+                    {item.tag}
                   </p>
                 );
               })}
