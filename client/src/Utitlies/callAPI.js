@@ -1,12 +1,26 @@
 import axios from "axios";
 import Store from "./../Component/Store";
 
-export const callApi = (endpoint, method, payload, id,token,callFrom) => {
-  let usertoken = Store.getState().logIn && Store.getState().logIn.payload || token;
-  let UserId = Store.getState().userInfo && Store.getState().userInfo.payload.id || id ;
+export const callApi = (
+  endpoint,
+  method,
+  payload,
+  id,
+  token,
+  callFrom,
+  refreshToken
+) => {
+  let usertoken =
+    (Store.getState().logIn && Store.getState().logIn.payload) || token;
+
+  let headerProp = refreshToken ? "token" : "authorization";
+  debugger;
   const configaxios = {
     method,
-    url: callFrom==="Admin"?`${process.env.REACT_APP_URL_ADMIN}${endpoint}`:`${process.env.REACT_APP_URL_USER}${endpoint}`,
+    url:
+      callFrom === "Admin"
+        ? `${process.env.REACT_APP_URL_ADMIN}${endpoint}`
+        : `${process.env.REACT_APP_URL_USER}${endpoint}`,
     data: payload,
     headers: {
       Accept: "*/*",
@@ -14,8 +28,7 @@ export const callApi = (endpoint, method, payload, id,token,callFrom) => {
       "Content-Type": "application/json",
       "Access-Control-Max-Age": "6000",
       "Access-Control-Allow-Headers": "*",
-      authorization: usertoken,
-      id: UserId,
+      [headerProp]: usertoken,
     },
   };
   return new Promise((resolve, reject) => {

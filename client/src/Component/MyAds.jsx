@@ -66,11 +66,20 @@ const MyAds = () => {
     setOpenEditAd(false);
   };
   const handleUpdatePost = async (saveModal) => {
-    const updateAdd = await callApi(`/ad/${editAd._id}`, "patch", saveModal);
-    if (updateAdd) {
-      getNonpremiumadd();
-      handleCloseEditAdd();
-    }
+    const data = new FormData();
+    data.append("myImage", saveModal.selectedFile);
+    // console.log("data", data.has("myImage"));
+    let saveModalForPic = { ...saveModal };
+
+    // delete saveModal.selectedFile;
+    // console.log("data", saveModal);
+    // debugger;
+    // const updateAdd = await callApi(`/ad/${editAd._id}`, "patch", saveModal);
+    // const postPhoto = await callApi(`/ad/${editAd._id}/addimage`, "post", data);
+    // if (updateAdd) {
+    getNonpremiumadd();
+    handleCloseEditAdd();
+    // }
   };
   const getNonpremiumadd = async () => {
     const adds = await callApi("/ad/getnonpremium");

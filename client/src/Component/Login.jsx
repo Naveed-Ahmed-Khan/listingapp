@@ -29,21 +29,30 @@ class Login extends Component {
   handleLogin = async (e) => {
     e.preventDefault();
     const { saveModal } = this.state;
-    let data;
     callApi("/login", "post", saveModal)
       .then(async (res) => {
-        const userData = await callApi(
-          "/userinfo",
+        callApi(
+          "/gettoken ",
           "get",
           null,
           res.id,
-          res.token
-        );
-        if (res.msg === "Login Successfully" && userData) {
-          this.props.close(e);
-          this.props.logIn(res.token);
-          this.props.userInfo(userData);
-        }
+          res.token,
+          null,
+          "refreshToken"
+        ).then(async (res1) => {
+          const userData = await callApi(
+            "/userinfo",
+            "get",
+            null,
+            null,
+            res1.access_token
+          );
+          if ((userData || {})._id) {
+            this.props.close(e);
+            this.props.logIn(res1.access_token);
+            this.props.userInfo(userData);
+          }
+        });
       })
       .catch((error) => {
         Swal.fire({

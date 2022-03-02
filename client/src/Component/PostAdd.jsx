@@ -6,35 +6,37 @@ import Swal from "sweetalert2";
 import { Form, Row, Col, InputGroup, Button } from "react-bootstrap";
 import { MultiSelect } from "react-multi-select-component";
 import MultipleSelect from "./MultipleSelect";
+import axios from "axios";
 
 class PostAdd extends Component {
   constructor(props) {
     super(props);
     this.saveModal = {
-      sellerid: this.props.userInfoData._id,
-      sellername: this.props.userInfoData.name,
+      sellerid: this.props.userInfoData._id || "",
+      sellername: this.props.userInfoData.name || "",
       title: (this.props.editData || {}).title || "",
       category: (this.props.editData || {}).category || "",
       price: (this.props.editData || {}).price || "",
-      // tag: (this.props.editData || {}).tag || "",
+      tag: (this.props.editData || {}).tag || "",
       mainimg: (this.props.editData || {}).mainimg || "",
       address: (this.props.editData || {}).address || "",
       location: (this.props.editData || {}).location || "",
-      tags: (this.props.editData || {}).tags || "",
+      // tags: (this.props.editData || {}).tags || "",
       phonenumber: (this.props.editData || {}).phonenumber || "",
       description: (this.props.editData || {}).description || "",
-      file: {},
+      selectedFile: null,
     };
 
     this.state = {
       categoryList: [],
       locationList: [],
-      tags: [],
+      // tags: [],
       saveModal: this.saveModal,
       validated: false,
-      file: {},
     };
+    var formData = new FormData();
   }
+
   getCategory = async () => {
     const categoryData = await callApi("/category", "get");
     this.setState({
@@ -66,8 +68,18 @@ class PostAdd extends Component {
     });
   };
   handlePostAdd = async () => {
+    debugger;
+    const data = new FormData();
+    data.append("file", this.state.selectedFile);
     const { saveModal } = this.state;
+    console.log("Post is " + this.formData);
     const postData = await callApi("/ad", "post", saveModal);
+    const postPhoto = await callApi(
+      `/users/ad/${saveModal.sellerid}/addimage/ad`,
+      "post",
+      saveModal
+    );
+
     if (postData.msg === "Ad is posted") {
       Swal.fire("Add Posted Successfully", "", "success");
     }
@@ -118,34 +130,41 @@ class PostAdd extends Component {
     e.preventDefault();
 
     const fileInfo = e.target.files;
-    const formData = new FormData();
-    // formData = {
-    //   file: formData.get("file"),
-    // };
-    console.log("this is ");
-    let newArr = [];
-    for (let i = 0; i < fileInfo.length; i++) {
-      newArr.push(fileInfo[i]);
-    }
+
     this.setState({
       saveModal: {
         ...this.state.saveModal,
-        file: e.target.files,
+        file: e.target.files[0],
       },
     });
-    formData.append("file", this.state.file);
-    let data = { ...this.saveModal, file: this.state.file };
-    console.log(data);
+    this.formData = {
+      ...this.saveModal,
+    };
+    console.log("this is " + fileInfo);
+    console.log("this is " + this.formData);
+    // let newArr = [];
+    // for (let i = 0; i < fileInfo.length; i++) {
+    //   newArr.push(fileInfo[i]);
+    // }
 
     // axios
     //   .post('http://localhost:3000/uploaddufichier', formData)
     //   .then((res) => res.data);
   };
+  onChangeHandler = (event) => {
+    console.log(event.target.files[0]);
+    this.setState({
+      saveModal: {
+        ...this.state.saveModal,
+        selectedFile: event.target.files[0],
+      },
+    });
+  };
   render() {
     const { categoryList, saveModal, locationList, tags, validated } =
       this.state;
     const { editData, handleCloseEditAdd, handleUpdatePost } = this.props;
-
+    console.log("this.props", this.props);
     return (
       <React.Fragment>
         {/*Sliders Section*/}
@@ -199,7 +218,7 @@ class PostAdd extends Component {
                             type="file"
                             className="form-control example-file-input-custom"
                             name="file"
-                            onChange={this.handlePhoto}
+                            onChange={this.onChangeHandler}
                           />
                         </div>
                       </div>
@@ -343,9 +362,8 @@ class PostAdd extends Component {
                               value={saveModal.location}
                               onChange={this.handleField}
                               as="select"
-                              required
                             >
-                              <option value={""}>Select Location</option>
+                              {/* <option value={""}>Select Location</option> */}
                               {locationList.map((items, i) => {
                                 return (
                                   <option value={items.name} key={i}>
